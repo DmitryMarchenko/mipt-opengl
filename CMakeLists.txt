@@ -56,6 +56,20 @@ add_definitions(
 	-D_CRT_SECURE_NO_WARNINGS
 )
 
+# Tutorial 2
+add_executable(two_triangles
+		HW1/two_triangles/two_triangles.cpp
+		common/shader.cpp
+		common/shader.hpp
+
+		HW1/two_triangles/Shader1.fragmentshader
+		HW1/two_triangles/Shader2.fragmentshader
+		HW1/two_triangles/SimpleVertexShader.vertexshader
+		)
+target_link_libraries(two_triangles
+		${ALL_LIBS}
+		)
+
 # Tutorial 1
 add_executable(tutorial01_first_window 
 	tutorial01_first_window/tutorial01.cpp
