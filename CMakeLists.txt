@@ -56,7 +56,7 @@ add_definitions(
 	-D_CRT_SECURE_NO_WARNINGS
 )
 
-# Tutorial 2
+# two triangles
 add_executable(two_triangles
 		HW1/two_triangles/two_triangles.cpp
 		common/shader.cpp
@@ -67,6 +67,19 @@ add_executable(two_triangles
 		HW1/two_triangles/SimpleVertexShader.vertexshader
 		)
 target_link_libraries(two_triangles
+		${ALL_LIBS}
+		)
+
+# 3D figure
+add_executable(3D_figure
+		HW1/3D_figure/figure.cpp
+		common/shader.cpp
+		common/shader.hpp
+
+		HW1/3D_figure/ColorFragmentShader.fragmentshader
+		HW1/3D_figure/TransformVertexShader.vertexshader
+		)
+target_link_libraries(3D_figure
 		${ALL_LIBS}
 		)
 
