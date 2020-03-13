@@ -12,6 +12,7 @@ GLFWwindow* window;
 // Include GLM
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <cmath>
 using namespace glm;
 
 #include <common/shader.hpp>
@@ -32,7 +33,7 @@ int main( void )
 
 
 	// Open a window and create its OpenGL context
-	window = glfwCreateWindow( 1024, 768, "Tutorial 04 - Colored Cube", NULL, NULL);
+	window = glfwCreateWindow( 1024, 768, "Tetrahedron", NULL, NULL);
 	if( window == NULL ){
 		fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n" );
 		getchar();
@@ -122,24 +123,24 @@ int main( void )
 	glBindBuffer(GL_ARRAY_BUFFER, colorbuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(g_color_buffer_data), g_color_buffer_data, GL_STATIC_DRAW);
 
-    float n = 1, x = 4, y = 3, z = -3;
+    float n = 0.1, x = -3, y = sqrt(3*3 - x*x), z = 3;
 
 	do{
         // Camera matrix
         glm::mat4 View       = glm::lookAt(
-                glm::vec3(x,y,-z), // Camera is at (4,3,-3), in World Space
+                glm::vec3(x,y,z), // Camera is at (4,3,-3), in World Space
                 glm::vec3(0,0,0), // and looks at the origin
                 glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
         );
 
-        if (x < -20) {
-            n = 0.1;
-        } else if (x > 20) {
-            n = -0.1;
+        if (x < -2.99) {
+            n = 0.01;
+        } else if (x > 2.99) {
+            n = -0.01;
         }
         x += n;
-        y += n;
         z += n;
+        y = -sign(n) * sqrt(3*3 - x*x);
 
         // Model matrix : an identity matrix (model will be at the origin)
         glm::mat4 Model      = glm::mat4(1.0f);
