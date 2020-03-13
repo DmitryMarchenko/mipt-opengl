@@ -14,6 +14,7 @@ GLFWwindow* window;
 using namespace glm;
 
 #include <common/shader.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 int main( void )
 {
@@ -61,6 +62,9 @@ int main( void )
 	GLuint programID1 = LoadShaders( "SimpleVertexShader.vertexshader", "Shader1.fragmentshader" );
     GLuint programID2 = LoadShaders( "SimpleVertexShader.vertexshader", "Shader2.fragmentshader" );
 
+    // Get a handle for our "MVP" uniform
+    GLuint MatrixID = glGetUniformLocation(programID1, "MVP");
+
 	// Get a handle for our buffers
 	GLuint vertexPosition_modelspaceID1 = glGetAttribLocation(programID1, "vertexPosition_modelspace");
     GLuint vertexPosition_modelspaceID2 = glGetAttribLocation(programID2, "vertexPosition_modelspace");
@@ -79,9 +83,35 @@ int main( void )
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 
-	do{
+    // Projection matrix : 45� Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
+    glm::mat4 Projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
+    // Or, for an ortho camera :
+    //glm::mat4 Projection = glm::ortho(-10.0f,10.0f,-10.0f,10.0f,0.0f,100.0f); // In world coordinates
 
-		// Clear the screen
+
+    float n = 1, x = 4, y = 3, z = 3;
+
+	do{
+        // Camera matrix
+        glm::mat4 View       = glm::lookAt(
+                glm::vec3(x,y,z), // Camera is at (4,3,3), in World Space
+                glm::vec3(0,0,0), // and looks at the origin
+                glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
+        );
+        if (x < -10) {
+            n = 0.1;
+        } else if (x > 10) {
+            n = -0.1;
+        }
+        x += n;
+        y += n;
+        z += n;
+        // Model matrix : an identity matrix (model will be at the origin)
+        glm::mat4 Model      = glm::mat4(1.0f);
+        // Our ModelViewProjection : multiplication of our 3 matrices
+        glm::mat4 MVP        = Projection * View * Model; // Remember, matrix multiplication is the other way around
+
+        // Clear the screen
 		glClear( GL_COLOR_BUFFER_BIT );
 
 		// 1rst attribute buffer : vertices
@@ -97,6 +127,9 @@ int main( void )
 		);
 		// Use our shader
 		glUseProgram(programID1);
+        // Send our transformation to the currently bound shader,
+        // in the "MVP" uniform
+        glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
 		// Draw the triangle !
 		glDrawArrays(GL_TRIANGLES, 0, 3); // 3 indices starting at 0 -> 1 triangle
 
@@ -114,6 +147,9 @@ int main( void )
         );
 
 		glUseProgram(programID2);
+        // Send our transformation to the currently bound shader,
+        // in the "MVP" uniform
+        glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
         glDrawArrays(GL_TRIANGLES, 3, 3);
 
         glDisableVertexAttribArray(vertexPosition_modelspaceID2);
